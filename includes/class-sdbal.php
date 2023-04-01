@@ -186,6 +186,8 @@ class Sdbal
   {
 
     $public = new SDBAL\Front($this->get_plugin_name(), $this->get_version());
+
+    $this->loader->add_action('template_redirect',  $public, 'redirect_to_whatsapp', 10);
   }
 
   /**

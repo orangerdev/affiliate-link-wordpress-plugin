@@ -56,4 +56,30 @@ class Front
     $this->plugin_name = $plugin_name;
     $this->version = $version;
   }
+
+  /**
+   * Redirect visitor to whatsapp when visit a campaign link
+   * Hooked via action template_redirect, priority 10
+   * @author  Ridwan Arifandi
+   * @since   1.0.0
+   * @return  void
+   */
+  public function redirect_to_whatsapp()
+  {
+
+    if (is_singular(SDBAL_CPT_CAMPAIGN)) :
+      global $post;
+      $campaign_id = $post->ID;
+      $phone_number = carbon_get_post_meta($campaign_id, 'admin_phone');
+      $message = carbon_get_post_meta($campaign_id, 'whatsapp_message');
+
+      $whatsapp_url = add_query_arg(array(
+        'phone' => $phone_number,
+        'text' => rawurlencode($message)
+      ), 'https://api.whatsapp.com/send');
+
+      wp_redirect($whatsapp_url);
+      exit;
+    endif;
+  }
 }
