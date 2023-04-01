@@ -69,6 +69,7 @@ class Front
   protected function set_cookie(int $affiliate_id)
   {
     setcookie(SDBAL_COOKIE_AFFILIATE_KEY, $affiliate_id, 0, COOKIEPATH, COOKIE_DOMAIN);
+    $_COOKIE[SDBAL_COOKIE_AFFILIATE_KEY] = $affiliate_id;
   }
 
   /**
@@ -168,8 +169,78 @@ class Front
    * @since   1.0.0
    * @return  void
    */
-  public function display_affiliate_field()
+  public function display_affiliate_field( $form_data )
   {
     require_once SDBAL_PLUGIN_PATH . 'public/partials/affiliate-field.php';
   }
+
+  /**
+   * Custom save wpformdb data
+   * Hooked via filter WPFormsDB_before_save_data, priority 10 
+   * 
+   * @author Adi C <adicahyaludin@gmail.com>
+   * @since 1.0.0
+   * @param array $data
+   * @return array
+   */
+  public function custom_save_wpformdb_data( $data )
+  {
+
+    $new_data = [];
+
+    if ( isset( $_POST['wpforms']['campaign_id'] ) ) :
+      $campaign_id = $_POST['wpforms']['campaign_id'];
+      $post = get_post( $campaign_id );
+      if ( $post ) :
+        $campaign = $post->post_title.' (#'.$post->ID.')';
+      else:
+        $campaign = $campaign_id;
+      endif;
+      $new_data['campaign'] = $campaign;
+    endif;
+
+    if ( isset( $_POST['wpforms']['affiliate_id'] ) ) :
+      $affiliate_id = $_POST['wpforms']['affiliate_id'];
+      $user = get_userdata( $affiliate_id );
+      if ( $user ) :
+        $agent = $user->display_name.' - '.$user->_phone_number.' (#'.$affiliate_id.')';
+      else:
+        $agent = $affiliate_id;
+      endif;
+      $new_data['agent'] = $agent;
+    endif;
+
+    $new_data = array_merge( $new_data, $data );
+
+    return $new_data;
+
+  }
+
+  /**
+   * This will fire at the very end of a (successful) form entry.
+   * Hooked via action wpforms_process_complete, priority 10
+   * 
+   * @link  https://wpforms.com/developers/wpforms_process_complete/
+   * @author Adi C <adicahyaludin@gmail.com>
+   * @since 1.0.0
+   * @param array  $fields    Sanitized entry field values/properties.
+   * @param array  $entry     Original $_POST global.
+   * @param array  $form_data Form data and settings.
+   * @param int    $entry_id  Entry ID. Will return 0 if entry storage is disabled or using WPForms Lite.
+   */
+  public function wpformdb_redirect_to_wa( $fields, $entry, $form_data, $entry_id ) {
+    
+    if ( isset( $_POST['wpforms']['campaign_id'] ) ) :
+      $campaign_id = $_POST['wpforms']['campaign_id'];
+      $campaign = get_post( $campaign_id );
+      if ( $campaign ) :
+        $url = get_permalink($campaign);
+        if ( wp_redirect( $url ) ) :
+          exit;
+        endif;
+      endif;
+    endif;
+
+  }
+
 }
