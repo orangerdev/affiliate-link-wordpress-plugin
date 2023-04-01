@@ -189,6 +189,7 @@ class Sdbal
 
     $this->loader->add_action('template_redirect',  $public, 'check_affiliate', -1);
     $this->loader->add_action('template_redirect',  $public, 'redirect_to_whatsapp', 10);
+    $this->loader->add_action('wpforms_display_submit_before', $public, 'display_affiliate_field');
   }
 
   /**

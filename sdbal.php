@@ -36,6 +36,9 @@ if (!defined('WPINC')) {
  * Rename this for your plugin and update it as you release new versions.
  */
 define('SDBAL_VERSION', '1.0.0');
+define('SDBAL_PLUGIN_PATH', plugin_dir_path(__FILE__));
+define('SDBAL_PLUGIN_URL', plugin_dir_url(__FILE__));
+define('SDBAL_COOKIE_AFFILIATE_KEY', 'sdbal_affiliate');
 define('SDBAL_ROLE_AGENT', 'agent');
 define('SDBAL_CPT_CAMPAIGN', 'sdbal-campaign');
 

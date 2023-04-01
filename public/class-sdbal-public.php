@@ -46,14 +46,6 @@ class Front
   private $version;
 
   /**
-   * The cookie key to store affiliate id
-   * @since   1.0.0
-   * @var     string
-   * @access  protected
-   */
-  protected $cookie_key = 'sdbal_affiliate';
-
-  /**
    * Initialize the class and set its properties.
    *
    * @since   1.0.0
@@ -76,7 +68,7 @@ class Front
    */
   protected function set_cookie(int $affiliate_id)
   {
-    setcookie($this->cookie_key, $affiliate_id, 0, COOKIEPATH, COOKIE_DOMAIN);
+    setcookie(SDBAL_COOKIE_AFFILIATE_KEY, $affiliate_id, 0, COOKIEPATH, COOKIE_DOMAIN);
   }
 
   /**
@@ -87,11 +79,11 @@ class Front
    */
   protected function check_cookie()
   {
-    if (isset($_COOKIE[$this->cookie_key])) :
+    if (isset($_COOKIE[SDBAL_COOKIE_AFFILIATE_KEY])) :
 
       $query = new WP_User_Query(array(
         'number' => 1,
-        'include' => array($_COOKIE[$this->cookie_key]),
+        'include' => array($_COOKIE[SDBAL_COOKIE_AFFILIATE_KEY]),
         'count_total' => false,
       ));
 
@@ -167,5 +159,17 @@ class Front
       wp_redirect($whatsapp_url);
       exit;
     endif;
+  }
+
+  /**
+   * Display affiliate field in wpform
+   * Hooked via wpforms_display_submit_before, priority 10
+   * @author  Ridwan Arifandi
+   * @since   1.0.0
+   * @return  void
+   */
+  public function display_affiliate_field()
+  {
+    require_once SDBAL_PLUGIN_PATH . 'public/partials/affiliate-field.php';
   }
 }
