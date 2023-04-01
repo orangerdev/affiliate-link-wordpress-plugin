@@ -117,6 +117,8 @@ class Sdbal
      * The class responsible for defining all actions that occur in the admin area.
      */
     require_once plugin_dir_path(dirname(__FILE__)) . 'admin/class-sdbal-admin.php';
+    require_once plugin_dir_path(dirname(__FILE__)) . 'admin/class-sdbal-campaign.php';
+    require_once plugin_dir_path(dirname(__FILE__)) . 'admin/class-sdbal-user.php';
 
     /**
      * The class responsible for defining all actions that occur in the public-facing
@@ -155,6 +157,22 @@ class Sdbal
   {
 
     $admin = new SDBAL\Admin($this->get_plugin_name(), $this->get_version());
+
+    $this->loader->add_action('after_setup_theme', $admin, 'load_carbon_fields');
+
+    $campaign = new SDBAL\Admin\Campaign($this->get_plugin_name(), $this->get_version());
+
+    $this->loader->add_action('init',   $campaign, 'register_post_type', 10);
+    $this->loader->add_action('carbon_fields_register_fields', $campaign, 'register_fields', 10);
+    $this->loader->add_filter('manage_' . SDBAL_CPT_CAMPAIGN . '_posts_columns', $campaign, 'set_columns', 10);
+    $this->loader->add_action('manage_' . SDBAL_CPT_CAMPAIGN . '_posts_custom_column', $campaign, 'display_column_values', 10, 2);
+
+    $user = new SDBAL\Admin\User($this->get_plugin_name(), $this->get_version());
+
+    $this->loader->add_action('init',                           $user, 'register_roles', 10);
+    $this->loader->add_action('carbon_fields_register_fields',  $user, 'register_fields', 10);
+    $this->loader->add_filter('manage_users_columns',           $user, 'set_columns', 10);
+    $this->loader->add_filter('manage_users_custom_column',     $user, 'display_column_values', 10, 3);
   }
 
   /**

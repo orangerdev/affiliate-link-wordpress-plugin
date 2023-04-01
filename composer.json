@@ -1,0 +1,11 @@
+{
+  "config": {
+    "platform": {
+      "php": "8.0.2"
+    }
+  },
+  "require": {
+    "php": "^8.0.2",
+    "htmlburger/carbon-fields": "^3.3"
+  }
+}

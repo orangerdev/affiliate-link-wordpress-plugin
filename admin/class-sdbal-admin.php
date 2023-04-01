@@ -56,4 +56,15 @@ class Admin
     $this->plugin_name = $plugin_name;
     $this->version = $version;
   }
+
+  /**
+   * Load carbon fields
+   * Hooked via action after_setup_theme, priority 1
+   * @since 1.0.0
+   * @return void
+   */
+  public function load_carbon_fields()
+  {
+    \Carbon_Fields\Carbon_Fields::boot();
+  }
 }
