@@ -103,6 +103,7 @@ class Campaign
       'has_archive'        => false,
       'hierarchical'       => false,
       'menu_position'      => 7,
+      'rewrite'            => array('slug' => 'c'),
       'supports'           => array('title'),
     );
 
