@@ -169,7 +169,7 @@ class Front
    * @since   1.0.0
    * @return  void
    */
-  public function display_affiliate_field( $form_data )
+  public function display_affiliate_field($form_data)
   {
     require_once SDBAL_PLUGIN_PATH . 'public/partials/affiliate-field.php';
   }
@@ -183,37 +183,44 @@ class Front
    * @param array $data
    * @return array
    */
-  public function custom_save_wpformdb_data( $data )
+  public function custom_save_wpformdb_data($data)
   {
 
     $new_data = [];
 
-    if ( isset( $_POST['wpforms']['campaign_id'] ) ) :
-      $campaign_id = $_POST['wpforms']['campaign_id'];
-      $post = get_post( $campaign_id );
-      if ( $post ) :
-        $campaign = $post->post_title.' (#'.$post->ID.')';
-      else:
+    if (isset($_POST['wpforms']['campaign_id'])) :
+
+      $campaign_id = (int) $_POST['wpforms']['campaign_id'];
+      $post = get_post($campaign_id);
+
+      if ($post) :
+        $campaign = $post->post_title . ' (#' . $post->ID . ')';
+      else :
         $campaign = $campaign_id;
       endif;
+
       $new_data['campaign'] = $campaign;
+
     endif;
 
-    if ( isset( $_POST['wpforms']['affiliate_id'] ) ) :
-      $affiliate_id = $_POST['wpforms']['affiliate_id'];
-      $user = get_userdata( $affiliate_id );
-      if ( $user ) :
-        $agent = $user->display_name.' - '.$user->_phone_number.' (#'.$affiliate_id.')';
-      else:
+    if (isset($_POST['wpforms']['affiliate_id'])) :
+
+      $affiliate_id = (int) $_POST['wpforms']['affiliate_id'];
+
+      $user = get_userdata($affiliate_id);
+
+      if ($user) :
+        $agent = $user->display_name . ' - ' . $user->_phone_number . ' (#' . $affiliate_id . ')';
+      else :
         $agent = $affiliate_id;
       endif;
+
       $new_data['agent'] = $agent;
     endif;
 
-    $new_data = array_merge( $new_data, $data );
+    $new_data = array_merge($new_data, $data);
 
     return $new_data;
-
   }
 
   /**
@@ -228,19 +235,20 @@ class Front
    * @param array  $form_data Form data and settings.
    * @param int    $entry_id  Entry ID. Will return 0 if entry storage is disabled or using WPForms Lite.
    */
-  public function wpformdb_redirect_to_wa( $fields, $entry, $form_data, $entry_id ) {
-    
-    if ( isset( $_POST['wpforms']['campaign_id'] ) ) :
-      $campaign_id = $_POST['wpforms']['campaign_id'];
-      $campaign = get_post( $campaign_id );
-      if ( $campaign ) :
-        $url = get_permalink($campaign);
-        if ( wp_redirect( $url ) ) :
+  public function wpformdb_redirect_to_wa($fields, $entry, $form_data, $entry_id)
+  {
+
+    if (isset($_POST['wpforms']['campaign_id'])) :
+
+      $campaign_id = (int) $_POST['wpforms']['campaign_id'];
+      $campaign_url = get_permalink($campaign_id);
+
+      if ($campaign_url) :
+        if (wp_redirect($campaign_url)) :
           exit;
         endif;
       endif;
+
     endif;
-
   }
-
 }
