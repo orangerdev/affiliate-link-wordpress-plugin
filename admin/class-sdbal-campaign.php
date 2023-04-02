@@ -143,6 +143,7 @@ class Campaign
 
     unset($columns['date']);
 
+    $columns['id'] = 'ID';
     $columns['whatsapp_number'] = 'Default Number';
 
     return $columns;
@@ -159,6 +160,10 @@ class Campaign
   public function display_column_values(string $column, int $post_id)
   {
     switch ($column):
+      case 'id':
+        echo $post_id;
+        break;
+
       case 'whatsapp_number':
         $number = carbon_get_post_meta($post_id, 'admin_phone');
         echo $number;

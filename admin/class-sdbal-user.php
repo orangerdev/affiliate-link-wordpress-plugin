@@ -153,7 +153,13 @@ class User
         break;
 
       case 'affiliate':
-        $value = carbon_get_user_meta($user_id, 'affiliate');
+        $ref = carbon_get_user_meta($user_id, 'affiliate');
+
+        $link = add_query_arg(array(
+          'ref' => $ref
+        ), get_bloginfo('url'));
+
+        $value = sprintf(__("<a href='%s' target='_blank'>%s</a>", 'sdbal'), $link, $ref);
         break;
 
     endswitch;
