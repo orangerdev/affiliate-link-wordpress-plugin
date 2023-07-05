@@ -45,6 +45,8 @@ class Front
    */
   private $version;
 
+  protected $is_triggered = false;
+
   /**
    * Initialize the class and set its properties.
    *
@@ -175,6 +177,37 @@ class Front
   }
 
   /**
+   * Save form data to zapier
+   * Hooked via filter WPFormsDB_before_save_data, priority 10 
+   * @param   array   $data
+   * @param   int     $form_id
+   * @return  array
+   */
+  protected function send_to_zapier($data, $campaign_id)
+  {
+    $zapier_link = carbon_get_post_meta($campaign_id, 'zapier_link');
+
+    if (!empty($zapier_link) && filter_var($zapier_link, FILTER_VALIDATE_URL)) :
+
+      $data['campaign_id'] = $campaign_id;
+      $data['datetime'] = current_time('Y-m-d H:i:s');
+
+      $response = wp_remote_post($zapier_link, array(
+        'body' => $data
+      ));
+
+      if (is_wp_error($response)) :
+        $error_message = $response->get_error_message();
+        error_log("Something went wrong: $error_message");
+      endif;
+
+    else :
+      error_log("Zapier link is empty or invalid: [$campaign_id] #$zapier_link ");
+
+    endif;
+  }
+
+  /**
    * Custom save wpformdb data
    * Hooked via filter WPFormsDB_before_save_data, priority 10 
    * 
@@ -187,21 +220,7 @@ class Front
   {
 
     $new_data = [];
-
-    if (isset($_POST['wpforms']['campaign_id'])) :
-
-      $campaign_id = (int) $_POST['wpforms']['campaign_id'];
-      $post = get_post($campaign_id);
-
-      if ($post) :
-        $campaign = $post->post_title . ' (#' . $post->ID . ')';
-      else :
-        $campaign = $campaign_id;
-      endif;
-
-      $new_data['campaign'] = $campaign;
-
-    endif;
+    $campaign_id = 0;
 
     if (isset($_POST['wpforms']['affiliate_id'])) :
 
@@ -218,7 +237,34 @@ class Front
       $new_data['agent'] = $agent;
     endif;
 
+    if (isset($_POST['wpforms']['campaign_id'])) :
+
+      $campaign_id = (int) $_POST['wpforms']['campaign_id'];
+      $post = get_post($campaign_id);
+
+      if ($post) :
+        $campaign = $post->post_title . ' (#' . $post->ID . ')';
+      else :
+        $campaign = $campaign_id;
+      endif;
+
+      $new_data['campaign'] = $campaign;
+
+    endif;
+
     $new_data = array_merge($new_data, $data);
+
+    if (
+      !empty($campaign_id) &&
+      false === $this->is_triggered
+    ) :
+      $this->send_to_zapier(
+        $new_data,
+        $campaign_id
+      );
+
+      $this->is_triggered = true;
+    endif;
 
     return $new_data;
   }

@@ -129,6 +129,10 @@ class Campaign
         Field::make('textarea', 'whatsapp_message', 'WhatsApp Message')
           ->set_help_text('Message that will be sent to WhatsApp')
           ->set_required(true),
+
+        Field::make('text', 'zapier_link', 'Zapier Link')
+          ->set_help_text('Zapier link to send data to')
+          ->set_attribute('type', 'url'),
       ]);
   }
 
